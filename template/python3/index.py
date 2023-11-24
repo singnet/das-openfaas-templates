@@ -4,7 +4,7 @@
 
 import sys
 import handler
-
+import json
 
 def get_stdin():
     buf = ""
@@ -20,4 +20,7 @@ if __name__ == "__main__":
     st = get_stdin()
     ret = handler.handle(st)
     if ret != None:
-        print(ret)
+        if isinstance(ret, dict):
+            print(json.dumps(ret))
+        else:
+            print(ret)
