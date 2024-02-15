@@ -45,7 +45,10 @@ def format_body(resp):
     if "body" not in resp:
         return ""
     elif type(resp["body"]) == dict:
-        return jsonify(resp["body"])
+        try:
+            return jsonify(resp["body"])
+        except:
+            return json.dumps(resp["body"], default=str, indent=4)
     else:
         return str(resp["body"])
 
