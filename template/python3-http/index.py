@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from waitress import serve
 import os
 import json
+import pickle
 
 import handler
 
@@ -42,28 +43,21 @@ def format_status_code(resp):
 
 
 def format_body(resp):
-    if "body" not in resp:
-        return ""
-    elif type(resp["body"]) == dict:
-        try:
-            return jsonify(resp["body"])
-        except:
-            return json.dumps(resp["body"], default=str, indent=4)
-    else:
-        return str(resp["body"])
+    return pickle.loads(resp.get("body", None))
 
 
 def format_headers(resp):
+    headers = [("Contenty-Type", "text/plain")]
+
     if "headers" not in resp:
-        return []
+        return headers
     elif type(resp["headers"]) == dict:
-        headers = []
         for key in resp["headers"].keys():
             header_tuple = (key, resp["headers"][key])
             headers.append(header_tuple)
         return headers
 
-    return resp["headers"]
+    return headers
 
 
 def format_response(resp):
