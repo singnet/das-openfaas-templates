@@ -18,11 +18,14 @@ class Event:
         self.query = request.args
         self.path = request.path
 
+    def deserialized_body(self):
+        return pickle.loads(self.body) if self.body else {}
+
     def to_dict(self):
-        body_dict = json.loads(self.body.decode("utf-8")) if self.body else {}
+        body = self.deserialized_body()
 
         return {
-            "body": body_dict,
+            "body": body,
             "headers": dict(self.headers),
             "method": self.method,
             "query": dict(self.query),
