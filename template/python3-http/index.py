@@ -43,7 +43,7 @@ def format_status_code(resp):
 
 
 def format_body(resp):
-    return pickle.loads(resp.get("body", None))
+    return pickle.dumps(resp.get("body", None))
 
 
 def format_headers(resp):
