@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from waitress import serve
 import os
-import json
 import pickle
 
 import handler
@@ -17,6 +16,12 @@ class Event:
         self.method = request.method
         self.query = request.args
         self.path = request.path
+
+    def is_binary_payload(self):
+        content_type = self.headers.get("Content-Type", "")
+        if content_type.lower() == "application/octet-stream":
+            return True
+        return False
 
     def deserialized_body(self):
         return pickle.loads(self.body) if self.body else {}
@@ -80,10 +85,23 @@ def format_response(resp):
 @app.route("/<path:path>", methods=["GET", "PUT", "POST", "PATCH", "DELETE"])
 def call_handler(path):
     event = Event()
+
+    if not event.is_binary_payload():
+        resp = format_response(
+            {
+                "statusCode": 400,
+                "body": dict(
+                    error="Body must be binary with Content-Type application/octet-stream",
+                ),
+            }
+        )
+
+        return resp
+
     context = Context()
     response_data = handler.handle(event.to_dict(), context)
-
     resp = format_response(response_data)
+
     return resp
 
 
